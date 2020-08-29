@@ -1,0 +1,22 @@
+{
+  "name": "Web-PiP",
+  "version": "1.0.0",
+  "description": "Desktop picture-in-picture app for online media",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "falldeaf (Tom Mardis)",
+  "license": "ISC",
+  "dependencies": {
+    "command-line-args": "^5.1.1",
+    "electron": "https://github.com/castlabs/electron-releases"
+  },
+  "protocols": {
+    "name": "webpip-protocol",
+    "schemes": [
+      "webpip"
+    ]
+  }
+}
