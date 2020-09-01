@@ -1,11 +1,12 @@
 module.exports = {
 	handle: async function (url) {
-		console.log("Saw: "+ url);
-
 		if(RegExp(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/gm).test(url)) {
 			console.log("Youtube URL");
 			var final_url = "https://www.youtube.com/embed/" + getIdFromYoutubeURL(url) + "?autoplay=1&enablejsapi=1";
 			return {url: final_url, extra_preload: 'youtube.js'};
+		} else if(url.includes('app.plex.tv')) {
+			console.log('Plex URL');
+			return {url: url, extra_preload: 'plex.js'};
 		} else {
 			console.log("Default URL");
 			return {url: url};

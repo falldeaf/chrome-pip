@@ -5,7 +5,7 @@ const { globalShortcut } = require('electron')
 
 module.exports = {
 	//Register base shortcuts
-	reg_base: async function (status, setWinPos, shutdown) {
+	reg_base: async function (status, setWinPos, shutdown, mousemode) {
 
 		//sizeup
 		globalShortcut.register('Super+Num8', () => {
@@ -26,28 +26,28 @@ module.exports = {
 		//move upper right
 		globalShortcut.register('Super+Num9', () => {
 			console.log('Upper Right');
-			current_pos = "ur";
+			status.current_pos = "ur";
 			setWinPos("ur", status.win, status.dimensions);
 		})
 
 		//move upper left
 		globalShortcut.register('Super+Num7', () => {
 			console.log('Upper Left');
-			current_pos = "ul";
+			status.current_pos = "ul";
 			setWinPos("ul", status.win, status.dimensions);
 		})
 
 		//move lower right
 		globalShortcut.register('Super+Num3', () => {
 			console.log('Lower Right');
-			current_pos = "lr";
+			status.current_pos = "lr";
 			setWinPos("lr", status.win, status.dimensions);
 		})
 
 		//move lower left
 		globalShortcut.register('Super+Num1', () => {
 			console.log('Lower Left');
-			current_pos = "ll";
+			status.current_pos = "ll";
 			setWinPos("ll", status.win, status.dimensions);
 		})
 

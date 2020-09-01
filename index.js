@@ -5,8 +5,6 @@ const shortcuts = require('./shortcuts')
 const urlhandler = require('./urlhandler')
 const { url } = require('inspector')
 
-app.commandLine.appendSwitch('no-verify-widevine-cdm')
-
 var status = {
 	isOffline: false,
 	ghost_mode: false,
@@ -36,8 +34,7 @@ async function unmouseable(flag) {
 
 async function createWindow (setup) {
 	var url_opts = await urlhandler.handle(setup.url);
-	console.log(url_opts);
-
+	
 	//Set User Agent and All preloads (default preload plus url specific preloads)
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
 		details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36';
@@ -55,16 +52,17 @@ async function createWindow (setup) {
 		frame: false,
 		transparent: true,
 		webPreferences: {
+			//sandbox: true,
+			nodeIntegrationInWorker: false,
+			contextIsolation: false, // Must be disabled for preload script. I am not aware of a workaround but this *shouldn't* effect security
 			nodeIntegration: false,
 			plugins: true,
-			//preload: path.join(__dirname, 'inject.js')
 		}
 	})
 
 	// and load the index.html of the app.
 	//win.loadFile('test.html');
 	//win.loadURL('https://www.youtube.com/embed/b8jzK684xxY?autoplay=1');
-
 	//status.view = new BrowserView();//{webPreferences: {preload: path.join(__dirname, 'inject.js')}});
 	//status.win.setBrowserView(status.view);
 	//status.view.setBounds({ x: 0, y: 0, width: 320, height: 180 });
@@ -115,10 +113,12 @@ function shutdown() {
 }
 
 //app.whenReady().then(createWindow)
+app.commandLine.appendSwitch('no-verify-widevine-cdm');
 
 app.on('ready', () => {
 	var mainScreen = screen.getPrimaryDisplay();
 	status.dimensions = mainScreen.size;
+
 	// Demonstrating with default session, but a custom session object can be used
 	//Dumb DRM shit from: https://github.com/castlabs/electron-releases
 	app.verifyWidevineCdm({
@@ -129,7 +129,13 @@ app.on('ready', () => {
 	// Do other early initialization...
 });
 
-app.on('widevine-ready', async () => {
+app.on('widevine-ready', async (version, lastVersion) => {
+	if (null !== lastVersion) {
+		console.log('Widevine ' + version + ', upgraded from ' + lastVersion + ', is ready to be used!');
+	} else {
+		console.log('Widevine ' + version + ' is ready to be used!');
+	}
+
 	createWindow(await args.get());
 });
 

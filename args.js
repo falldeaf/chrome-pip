@@ -11,7 +11,6 @@ const options = commandLineArgs(optionDefinitions);
 
 module.exports = {
 	get: async function () {
-		console.log(options);
 		return options;
 	}
 }
