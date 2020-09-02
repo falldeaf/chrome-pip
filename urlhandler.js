@@ -13,13 +13,14 @@ module.exports = {
 				return {
 					url: url,
 					extra_preload: profile.preload_code,
-					shortcuts: profile.shortcuts
+					shortcuts: profile.shortcuts,
+					local: false
 				}
 			}
 		}
 
 		console.log("Default URL");
-		return {}
+		return {url: url, extra_preload: false, local: false, shortcuts: false};
 	},
 
 	handle: async function (url) {

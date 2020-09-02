@@ -37,30 +37,21 @@ async function unmouseable(flag) {
 }
 
 async function createWindow (setup) {
-	console.log("Create a new window!: " + setup.url);
 
 	if(setup.url) {
 		var url_opts = await urlhandler.parseYaml(setup.url, pages);
 	} else {
-		url_opts = {local: true, url: `file://${__dirname}/index.html`};
+		url_opts = {local: true, url: `file://${__dirname}/index.html`, extra_preload: false};
 	}
 	
-	console.log(url_opts);
-
 	//Set User Agent and All preloads (default preload plus url specific preloads)
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
 		details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36';
 		callback({ cancel: false, requestHeaders: details.requestHeaders });
 	});
-	var preloads = [path.join(__dirname, 'inject.js')]; //Default Preload
-	if(url_opts.extra_preload) {
-		console.log("Preload found, adding...");
-		console.log(url_opts.extra_preload);
-		file = path.join(__dirname, 'extra_preload.js');
-		await fs.writeFile(file, url_opts.extra_preload, () => {});
-		preloads.push(file);
-	}
-	session.defaultSession.setPreloads(preloads);
+
+	//session.defaultSession.setPreloads(preload(url_opts.extra_preload));
+	//preload(url_opts.extra_preload);
 
 	// Create the browser window.
 	status.win = new BrowserWindow({
@@ -76,24 +67,13 @@ async function createWindow (setup) {
 			nodeIntegration: false,
 			plugins: true,
 		}
-	})
+	});
 
-	// and load the index.html of the app.
-	//win.loadFile('test.html');
-	//win.loadURL('https://www.youtube.com/embed/b8jzK684xxY?autoplay=1');
-	//status.view = new BrowserView();//{webPreferences: {preload: path.join(__dirname, 'inject.js')}});
-	//status.win.setBrowserView(status.view);
-	//status.view.setBounds({ x: 0, y: 0, width: 320, height: 180 });
-	//status.view.setAutoResize({width: true, height: true});
-	//view.webContents.loadURL('https://www.hulu.com/watch/4f74eacd-40a5-45dc-acf8-6edc1d24e726')
-	//status.view.webContents.loadURL('https://www.netflix.com/watch/80077923?trackId=14170286&tctx=3%2C2%2Cf65b9c87-670f-4384-8e7e-dfc01e84ef58-31441869%2Ca5d56d56-b693-4e9e-9f87-b8590a3ea368_13730585X3XX1598570254612%2Ca5d56d56-b693-4e9e-9f87-b8590a3ea368_ROOT%2C');
-	//status.view.webContents.loadURL('https://www.youtube.com/embed/b8jzK684xxY?autoplay=1');
-	//view.webContents.loadURL('https://bitmovin.com/demos/drm');
-	//win.loadURL('https://vimeo.com/451978443');
-	//status.win.loadURL('https://www.hulu.com/watch/4f74eacd-40a5-45dc-acf8-6edc1d24e726');
-
+	//Set Preloads and Open the URL
+	status.win.webContents.session.setPreloads(preload(url_opts.extra_preload));
 	status.win.webContents.loadURL(url_opts.url);
 	
+	//Once the window is open, initiate ghost mode if it's set
 	status.win.webContents.once('dom-ready', () => {
 		status.win.webContents.send("apps", pages);
 		if(setup.ghost) {
@@ -104,10 +84,20 @@ async function createWindow (setup) {
 	});
 
 	status.win.webContents.on('did-navigate-in-page', async (e, url) => {
-		console.log("New URL is: " + url);
 		e.preventDefault();
-		status.win.destroy();
-		createWindow({url: await url});
+		shortcuts.unreg_media();
+		status.win.close();
+		var url_opts = await urlhandler.parseYaml(url, pages);
+		if(url_opts.url != url) {
+			createWindow({url: url});
+		}
+			/*
+			console.log(status.win.webContents.session.getPreloads());
+			status.win.webContents.session.setPreloads(preload(url_opts.extra_preload));
+			console.log(status.win.webContents.session.getPreloads());
+			status.win.webContents.loadURL(url_opts.url);
+			if(url_opts.shortcuts) shortcuts.reg_media(status, url_opts.shortcuts);
+		}*/
 	});
 
 	status.win.webContents.on('new-window', (e, url) => {
@@ -120,13 +110,26 @@ async function createWindow (setup) {
 	status.win.setAlwaysOnTop(true, 'screen');
 
 	shortcuts.reg_base(status, setWinPos, shutdown);
-	shortcuts.reg_media(status, url_opts.shortcuts);
+	if(url_opts.shortcuts) shortcuts.reg_media(status, url_opts.shortcuts);
 
 	if(url_opts.local) {
 		setWinPos("cnt", status.win, "");
 	} else {
 		setWinPos(setup.corner?setup.corner:"ll", status.win, status.dimensions);
 	}
+}
+
+function preload(extra) {
+	//console.log(`extra preload ${extra}`);
+	var preloads = [path.join(__dirname, 'inject.js')]; //Default Preload
+	if(extra) {
+		file = path.join(__dirname, 'extra_preload.js');
+		fs.writeFile(file, extra, () => {});
+		preloads.push(file);
+	}
+	console.log(`Preloads ${preloads}`);
+	//session.defaultSession.setPreloads(preloads);
+	return preloads;
 }
 
 function setWinPos(pos, win, dimensions) {

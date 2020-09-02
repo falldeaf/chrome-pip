@@ -1,5 +1,7 @@
 const { ipcRenderer, app } = require('electron');
 
+console.log(`inject.js preloaded, running on ${window.location.href}`);
+
 var hoverwait = false;
 var ghostmode = false;
 

@@ -69,7 +69,6 @@ module.exports = {
 	},
 
 	reg_media: async function (status, shortcuts) {
-
 		//////////////////////
 		//MEDIA KEYS
 
