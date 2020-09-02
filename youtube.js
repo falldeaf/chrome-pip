@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 ipcRenderer.on('action', (event, messages) => {
-	console.log(messages)
+	console.log(messages);
 	switch(messages) {
 		case "play":
 			yt_command("playVideo");

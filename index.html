@@ -1,0 +1,99 @@
+<style>
+body, * {
+  margin:0;
+  padding:0;
+  font-family:arial;
+  font-size: 25px;
+  color:floralwhite;
+}
+
+#container {
+  width:100%;
+  height:100%;
+}
+
+#logo {
+  background-color:red;
+  height:20%;
+  text-align:center;
+}
+
+#main {
+  background-color:#222333;
+  height:500px;
+  border-radius: 5px;
+  border:9px solid #4b5067;
+  margin: auto;
+  padding:10px 10px;
+  text-align:center;
+  
+}
+
+#applist {
+  list-style: none;
+}
+
+#applist li {
+  cursor: pointer;
+  background-color: #423b6d;
+  margin:10px;
+  padding:10px;
+  height:30px;
+  width: 80%;
+  border-bottom:2px solid #1c1821;
+  border-right:2px solid #1c1821;
+  border-radius: 5px;
+}
+
+.icon {
+  float:left;
+}
+
+.title {
+  float:left;
+  margin-left: 20px;
+}
+
+.kb {
+  float:right;
+}
+</style>
+
+
+<div id="container">
+	<div id="logo">
+	LOGO
+	</div>
+	<div id="main">
+		videoPeep
+		<ul id="applist">
+		<!-- <li> <span class="icon">ICO</span> <span class="title">Youtube</span> <span class="kb"> KB </span></li>
+		<li> <span class="icon">ICO</span> <span class="title">Plex</span> <span class="kb"> KB </span></li> -->
+		</ul>
+	</div>
+</div>
+
+
+</div>
+
+<script>
+//document.addEventListener('DOMContentLoaded', (event) => {
+function setupApplist(app_list) {
+	for(var app of app_list) {
+		console.log(app.default_url);
+		var list_item = htmlToElem(`<li onclick="location.href='${app.default_url}';"><span class="icon">ICO</span> <span class="title">${app.name}</span> <span class="kb"> KB </span></li>`);
+		/*list_item.addEventListener('click', function() {
+			console.log(app.default_url);
+			location.href = app.default_url;
+		}.bind(this) );*/
+		document.getElementById('applist').appendChild(list_item);
+	}
+}
+
+function htmlToElem(html) {
+	let temp = document.createElement('template');
+	html = html.trim(); // Never return a space text node as a result
+	temp.innerHTML = html;
+	return temp.content.firstChild;
+}
+</script>

@@ -1,0 +1,50 @@
+- name: "Youtube"
+  default_url: "https://www.youtube.com/"
+  regex_ops:
+    test: '^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+'
+    regex: '(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?'
+    replacement: "https://www.youtube.com/embed/$3?autoplay=1&enablejsapi=1"
+  shortcuts: 
+    type: "ipc"
+  preload_code:
+    'const { ipcRenderer } = require("electron");
+    var player;
+
+    ipcRenderer.on("action", (event, messages) => {
+      console.log(messages);
+      switch(messages) {
+        case "play":
+          yt_command("playVideo");
+          break;
+        case "pause":
+          yt_command("pauseVideo");
+          break;
+        case "next":
+          yt_command("nextVideo");
+          break;
+      }
+    });
+
+    function yt_command(func) {
+      var ytcomm = JSON.stringify({"event": "command",	"func": func} );
+      console.log(ytcomm);
+      window.postMessage(ytcomm, "https://www.youtube.com");
+    }
+
+    ;0'
+
+- name: "Plex"
+  default_url: "https://app.plex.tv/desktop"
+  regex_ops:
+    test: "app.plex.tv/desktop"
+  shortcuts: 
+    type: "keyboard"
+    comm_back: "Left"
+    comm_play: "Space"
+    comm_forward: "Right"
+    comm_voldown: "Down"
+    comm_mute: ""
+    comm_volup: "Up"
+    comm_prev: "Alt+Left"
+    comm_spec: ""
+    comm_next: "Alt+Right"

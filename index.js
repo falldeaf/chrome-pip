@@ -1,9 +1,13 @@
-const { session, app, BrowserView, BrowserWindow, ipcMain, screen } = require('electron')
+const { nativeTheme, session, app, BrowserView, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path')
 const args = require('./args')
 const shortcuts = require('./shortcuts')
 const urlhandler = require('./urlhandler')
 const { url } = require('inspector')
+const fs = require('fs')
+const YAML = require('yaml')
+
+const pages = YAML.parse(fs.readFileSync('./setup.yml', 'utf8'));
 
 var status = {
 	isOffline: false,
@@ -33,15 +37,28 @@ async function unmouseable(flag) {
 }
 
 async function createWindow (setup) {
-	var url_opts = await urlhandler.handle(setup.url);
+
+	if(setup.url) {
+		var url_opts = await urlhandler.parseYaml(setup.url, pages);
+	} else {
+		url_opts = {local: true, url: `file://${__dirname}/index.html`};
+	}
 	
+	console.log(url_opts);
+
 	//Set User Agent and All preloads (default preload plus url specific preloads)
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
 		details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36';
 		callback({ cancel: false, requestHeaders: details.requestHeaders });
 	});
 	var preloads = [path.join(__dirname, 'inject.js')]; //Default Preload
-	if(url_opts.extra_preload) preloads.push(path.join(__dirname, url_opts.extra_preload));
+	if(url_opts.extra_preload) {
+		console.log("Preload found, adding...");
+		console.log(url_opts.extra_preload);
+		file = path.join(__dirname, 'extra_preload.js');
+		await fs.writeFile(file, url_opts.extra_preload, () => {});
+		preloads.push(file);
+	}
 	session.defaultSession.setPreloads(preloads);
 
 	// Create the browser window.
@@ -77,33 +94,55 @@ async function createWindow (setup) {
 	status.win.webContents.loadURL(url_opts.url);
 	
 	status.win.webContents.once('dom-ready', () => {
-		if(setup.debug) status.win.webContents.openDevTools();
+		status.win.webContents.send("apps", pages);
 		if(setup.ghost) {
 			status.ghost_mode = true;
 			status.win.webContents.send("ghost", String(status.ghost_mode));
 		}
+		if(setup.debug) status.win.webContents.openDevTools();
 	});
+
+	status.win.webContents.on('did-navigate-in-page', (e, url) => {
+		console.log(urlhandler.handle(url));
+
+	});
+
+	status.win.webContents.on('new-window', function(e, url) {
+		e.preventDefault();
+		console.log("No new windows");
+		status.win.webContents.loadURL(url);
+		//require('electron').shell.openExternal(url);
+	  });
 
 	status.win.setAlwaysOnTop(true, 'screen');
 
 	shortcuts.reg_base(status, setWinPos, shutdown);
+	shortcuts.reg_media(status, url_opts.shortcuts);
 
-	setWinPos(setup.corner?setup.corner:"ll", status.win, status.dimensions);
+	if(url_opts.local) {
+		setWinPos("cnt", status.win, "");
+	} else {
+		setWinPos(setup.corner?setup.corner:"ll", status.win, status.dimensions);
+	}
 }
 
 function setWinPos(pos, win, dimensions) {
 	switch(pos) {
 		case "ul":
-			status.win.setPosition( 10, 10 );
+			win.setPosition( 10, 10 );
 			break;
 		case "ur":
-			status.win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 10, 10 );
+			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 10, 10 );
 			break;
 		case "ll":
-			status.win.setPosition( 10, dimensions.height - status.sizes[status.size_index][1] - 50);
+			win.setPosition( 10, dimensions.height - status.sizes[status.size_index][1] - 50);
 			break;
 		case "lr":
-			status.win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 50, dimensions.height - status.sizes[status.size_index][1] - 50 );
+			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 50, dimensions.height - status.sizes[status.size_index][1] - 50 );
+			break;
+		case "cnt":
+			win.setSize(400, 800);
+			win.center();
 			break;
 	}
 }

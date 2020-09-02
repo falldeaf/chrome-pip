@@ -1,4 +1,27 @@
+const shortcuts = require("./shortcuts");
+
 module.exports = {
+	parseYaml: async function(url, yaml_json) {
+		for(var profile of yaml_json) {
+			if( new RegExp(profile.regex_ops.test, "gim").test(url) ) {
+				console.log(profile.name + " URL");
+				if( profile.regex_ops.regex ) {
+					url = url.replace(new RegExp(profile.regex_ops.regex, "gim"), profile.regex_ops.replacement );
+					console.log("modded url: " + url);
+				}
+
+				return {
+					url: url,
+					extra_preload: profile.preload_code,
+					shortcuts: profile.shortcuts
+				}
+			}
+		}
+
+		console.log("Default URL");
+		return {}
+	},
+
 	handle: async function (url) {
 		if(RegExp(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/gm).test(url)) {
 			console.log("Youtube URL");

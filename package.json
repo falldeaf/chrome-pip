@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "command-line-args": "^5.1.1",
-    "electron": "https://github.com/castlabs/electron-releases"
+    "electron": "https://github.com/castlabs/electron-releases",
+    "yaml": "^1.10.0"
   },
   "protocols": {
     "name": "webpip-protocol",
