@@ -37,6 +37,7 @@ async function unmouseable(flag) {
 }
 
 async function createWindow (setup) {
+	console.log("Create a new window!: " + setup.url);
 
 	if(setup.url) {
 		var url_opts = await urlhandler.parseYaml(setup.url, pages);
@@ -102,12 +103,14 @@ async function createWindow (setup) {
 		if(setup.debug) status.win.webContents.openDevTools();
 	});
 
-	status.win.webContents.on('did-navigate-in-page', (e, url) => {
-		console.log(urlhandler.handle(url));
-
+	status.win.webContents.on('did-navigate-in-page', async (e, url) => {
+		console.log("New URL is: " + url);
+		e.preventDefault();
+		status.win.destroy();
+		createWindow({url: await url});
 	});
 
-	status.win.webContents.on('new-window', function(e, url) {
+	status.win.webContents.on('new-window', (e, url) => {
 		e.preventDefault();
 		console.log("No new windows");
 		status.win.webContents.loadURL(url);
