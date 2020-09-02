@@ -86,9 +86,9 @@ async function createWindow (setup) {
 	status.win.webContents.on('did-navigate-in-page', async (e, url) => {
 		e.preventDefault();
 		shortcuts.unreg_media();
-		status.win.close();
 		var url_opts = await urlhandler.parseYaml(url, pages);
 		if(url_opts.url != url) {
+			status.win.close();
 			createWindow({url: url});
 		}
 			/*
