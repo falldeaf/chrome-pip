@@ -29,7 +29,7 @@
 	}
 	
 	#main {
-		background-color: #cec3d0d4;
+		background-color: #F0EDF8C9;
 		height: 500px;
 		border-radius: 25px;
 		/* border: 9px solid #4b5067; */
@@ -67,11 +67,11 @@ ul::-webkit-scrollbar-thumb:hover {
 	
 	#applist li {
 		cursor: pointer;
-		background-color: #cacaca;
+		background-color: #FAF0FB;
 		margin: 10px;
 		padding: 10px;
 		height: 30px;
-		width: 80%;
+		width: 87%;
 		border-radius: 10px;
 	}
 	
@@ -96,12 +96,11 @@ ul::-webkit-scrollbar-thumb:hover {
 	}
 
 	.kb {
-	  float:right;
-	  font-size: 12px;
-    padding-top: 9px;
+		float:right;
+		font-size: 17px;
 	}
 
-	.check {
+	.check-icon {
 		color:green;
 		font-size:12px;
 	}
@@ -119,13 +118,18 @@ ul::-webkit-scrollbar-thumb:hover {
 		<div id="main">
 			videoPeep
 			<ul id="applist">
-			<li> 
-				<div class="icon"><i class="material-icons">face</i></div> 
-				<div class="titles">
-					<div class="title">Youtube</div>
-					<div class="url">http://youtube.com</div>
-				</div>
-				<div class="kb"> KB<i class="check_icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
+			<li><div class="icon"><i class="material-icons">face</i></div><div class="titles"><div class="title">Youtube</div><div class="url">http://youtube.com</div></div><div class="kb"> KB<i class="check-icon material-icons">check</i> </div></li>
 			</ul>
 		</div>
 	</div>
@@ -138,13 +142,13 @@ ul::-webkit-scrollbar-thumb:hover {
 	function setupApplist(app_list) {
 		for(var app of app_list) {
 			console.log(app.default_url);
-			var kb = (app.shortcuts) ? 'kb<i class="check material-icons">check</i>' : '';
+			var kb = (app.shortcuts) ? 'kb<i class="check-list material-icons">check</i>' : '';
 			var list_item =
 			`<li onclick="location.href='${app.default_url}';">
 				<div class="icon"><i class="material-icons">${app.icon}</i></div> 
 				<div class="titles">
-					<div class="title">${app.name}</div>
-					<div class="url">${app.default_url}</div>
+					<div class="title">${app.name.substring(0,15)}</div>
+					<div class="url">${app.default_url.substring(0,10)}</div>
 				</div>
 				<div class="kb">${kb}</div>
 			</li>`;
