@@ -1,99 +1,168 @@
-<style>
-body, * {
-  margin:0;
-  padding:0;
-  font-family:arial;
-  font-size: 25px;
-  color:floralwhite;
-}
+<!doctype html>
 
-#container {
-  width:100%;
-  height:100%;
-}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
 
-#logo {
-  background-color:red;
-  height:20%;
-  text-align:center;
-}
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
 
-#main {
-  background-color:#222333;
-  height:500px;
-  border-radius: 5px;
-  border:9px solid #4b5067;
-  margin: auto;
-  padding:10px 10px;
-  text-align:center;
-  
-}
-
-#applist {
-  list-style: none;
-}
-
-#applist li {
-  cursor: pointer;
-  background-color: #423b6d;
-  margin:10px;
-  padding:10px;
-  height:30px;
-  width: 80%;
-  border-bottom:2px solid #1c1821;
-  border-right:2px solid #1c1821;
-  border-radius: 5px;
-}
-
-.icon {
-  float:left;
-}
-
-.title {
-  float:left;
-  margin-left: 20px;
-}
-
-.kb {
-  float:right;
-}
-</style>
-
-
-<div id="container">
-	<div id="logo">
-	LOGO
-	</div>
-	<div id="main">
-		videoPeep
-		<ul id="applist">
-		<!-- <li> <span class="icon">ICO</span> <span class="title">Youtube</span> <span class="kb"> KB </span></li>
-		<li> <span class="icon">ICO</span> <span class="title">Plex</span> <span class="kb"> KB </span></li> -->
-		</ul>
-	</div>
-</div>
-
-
-</div>
-
-<script>
-//document.addEventListener('DOMContentLoaded', (event) => {
-function setupApplist(app_list) {
-	for(var app of app_list) {
-		console.log(app.default_url);
-		var list_item = htmlToElem(`<li onclick="location.href='${app.default_url}';"><span class="icon">ICO</span> <span class="title">${app.name}</span> <span class="kb"> KB </span></li>`);
-		/*list_item.addEventListener('click', function() {
-			console.log(app.default_url);
-			location.href = app.default_url;
-		}.bind(this) );*/
-		document.getElementById('applist').appendChild(list_item);
+  <style>
+	body, * {
+	  margin:0;
+	  padding:0;
+	  font-family:Roboto;
+	  font-size: 25px;
+	  color:#252323;
 	}
+	
+	#container {
+	  width:100%;
+	  height:100%;
+	}
+	
+	#logo {
+	  background-color:red;
+	  height:20%;
+	  text-align:center;
+	}
+	
+	#main {
+		background-color: #cec3d0d4;
+		height: 500px;
+		border-radius: 25px;
+		/* border: 9px solid #4b5067; */
+		margin: auto;
+		padding: 10px 0;
+		text-align: center;
+	}
+	
+	#applist {
+		list-style: none;
+		overflow-y: scroll;
+		height:90%;
+		box-shadow: inset 0 0 12px grey;
+	}
+
+	ul::-webkit-scrollbar {
+  		width: 10px;
+	}
+
+/* Track */
+ul::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-function htmlToElem(html) {
-	let temp = document.createElement('template');
-	html = html.trim(); // Never return a space text node as a result
-	temp.innerHTML = html;
-	return temp.content.firstChild;
+/* Handle */
+ul::-webkit-scrollbar-thumb {
+  background: #888;
 }
-</script>
+
+/* Handle on hover */
+ul::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+	
+	#applist li {
+		cursor: pointer;
+		background-color: #cacaca;
+		margin: 10px;
+		padding: 10px;
+		height: 30px;
+		width: 80%;
+		border-radius: 10px;
+	}
+	
+	.icon {
+		font-size:32px;
+	  float:left;
+	}
+	
+	.titles {
+		text-align: left;
+		float:left;
+		margin-left: 20px;
+	}
+
+	.title {
+		font-size:16px;
+	}
+
+	.url {
+		font-size:12px;
+		color:dimgray;
+	}
+
+	.kb {
+	  float:right;
+	  font-size: 12px;
+    padding-top: 9px;
+	}
+
+	.check {
+		color:green;
+		font-size:12px;
+	}
+	</style>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+
+</head>
+
+<body>
+	<div id="container">
+		<div id="logo">
+		LOGO
+		</div>
+		<div id="main">
+			videoPeep
+			<ul id="applist">
+			<li> 
+				<div class="icon"><i class="material-icons">face</i></div> 
+				<div class="titles">
+					<div class="title">Youtube</div>
+					<div class="url">http://youtube.com</div>
+				</div>
+				<div class="kb"> KB<i class="check_icon material-icons">check</i> </div></li>
+			</ul>
+		</div>
+	</div>
+	
+	
+	</div>
+	
+	<script>
+	//document.addEventListener('DOMContentLoaded', (event) => {
+	function setupApplist(app_list) {
+		for(var app of app_list) {
+			console.log(app.default_url);
+			var kb = (app.shortcuts) ? 'kb<i class="check material-icons">check</i>' : '';
+			var list_item =
+			`<li onclick="location.href='${app.default_url}';">
+				<div class="icon"><i class="material-icons">${app.icon}</i></div> 
+				<div class="titles">
+					<div class="title">${app.name}</div>
+					<div class="url">${app.default_url}</div>
+				</div>
+				<div class="kb">${kb}</div>
+			</li>`;
+			var list_item = htmlToElem(list_item);//`<li onclick="location.href='${app.default_url}';"><span class="icon">ICO</span> <span class="title">${app.name}</span> <span class="kb"> KB </span></li>`);
+			/*list_item.addEventListener('click', function() {
+				console.log(app.default_url);
+				location.href = app.default_url;
+			}.bind(this) );*/
+			document.getElementById('applist').appendChild(list_item);
+		}
+	}
+	
+	function htmlToElem(html) {
+		let temp = document.createElement('template');
+		html = html.trim(); // Never return a space text node as a result
+		temp.innerHTML = html;
+		return temp.content.firstChild;
+	}
+	</script>
+</body>
+</html>

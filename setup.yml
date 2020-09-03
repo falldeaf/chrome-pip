@@ -1,5 +1,6 @@
 - name: "Youtube"
   default_url: "https://www.youtube.com/"
+  icon: "ondemand_video"
   regex_ops:
     test: '^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+'
     regex: '(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?'
@@ -34,6 +35,7 @@
 
 - name: "Plex"
   default_url: "https://app.plex.tv/desktop"
+  icon: "video_library"
   regex_ops:
     test: "app.plex.tv/desktop"
   shortcuts: 
@@ -47,3 +49,9 @@
     comm_prev: "Alt+Left"
     comm_spec: ""
     comm_next: "Alt+Right"
+
+- name: "GM Electronic Focus"
+  default_url: "https://play.google.com/music/listen#/wst/situations/Ln4hob7zcot52fkp5xudi2tiubi"
+  icon: "music_note"
+  regex_ops:
+    test: "play.google.com"

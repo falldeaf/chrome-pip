@@ -162,7 +162,7 @@ function setWinPos(pos, win, dimensions) {
 			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 50, dimensions.height - status.sizes[status.size_index][1] - 50 );
 			break;
 		case "cnt":
-			win.setSize(400, 800);
+			win.setSize(300, 800);
 			win.center();
 			break;
 	}
