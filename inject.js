@@ -17,6 +17,11 @@ var ghostmode = false;
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
+	ipcRenderer.on('action', (event, messages) => {
+		console.log("action: " + messages);
+		if(typeof action == 'function')	action(messages);
+	});
+
 	ipcRenderer.on('apps', (event, apps) => {
 		console.log(apps);
 		if(typeof setupApplist == 'function') {

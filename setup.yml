@@ -8,12 +8,10 @@
     type: "ipc"
   preload_code:
     'console.log("Loading YT IPC Actions");
-    const { ipcRenderer } = require("electron");
-    var player;
 
-    ipcRenderer.on("action", (event, messages) => {
-      console.log(messages);
-      switch(messages) {
+    function action(message){
+      console.log(message);
+      switch(message) {
         case "play":
           yt_command("playVideo");
           break;
@@ -24,7 +22,7 @@
           yt_command("nextVideo");
           break;
       }
-    });
+    }
 
     function yt_command(func) {
       var ytcomm = JSON.stringify({"event": "command",	"func": func} );

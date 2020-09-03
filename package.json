@@ -2,7 +2,7 @@
   "name": "Web-PiP",
   "version": "1.0.0",
   "description": "Desktop picture-in-picture app for online media",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
