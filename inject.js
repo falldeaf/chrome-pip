@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	});
 
 	ipcRenderer.on('apps', (event, apps) => {
-		console.log(apps);
 		if(typeof setupApplist == 'function') {
 			setupApplist(apps);
 		}
@@ -58,5 +57,13 @@ ipcRenderer.on('ghost', (event, messages) => {
 	ghostmode = (messages == "true");
 	document.getElementById('ghosticon').style.display = (messages == "true"?"block":"none");
 });
+
+window["setSize"] = function (size_string) {
+	ipcRenderer.send("setsize", size_string);
+}
+
+window["openExternal"] = function(url) {
+	ipcRenderer.send("openurl", url);
+}
 
 ;0

@@ -1,4 +1,4 @@
-const { nativeTheme, session, app, BrowserView, BrowserWindow, ipcMain, screen } = require('electron')
+const { shell, nativeImage, nativeTheme, session, app, BrowserView, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path')
 const args = require('./args')
 const shortcuts = require('./shortcuts')
@@ -38,6 +38,11 @@ if (have_lock) {
 	return
 }
 
+ipcMain.on('openurl', function(e, url){
+	status.win.minimize();
+	shell.openExternal(url);
+});
+
 ipcMain.on('mouseon', function(){
 	if(status.ghost_mode) {
 		console.log("mouseon");
@@ -49,6 +54,10 @@ ipcMain.on('mouseoff', function(){
 		console.log("mouseoff");
 		unmouseable(true);
 	}
+});
+ipcMain.on('setsize', function(e, size_string){
+	console.log(size_string);
+	setWinPos(size_string, status.win, status.dimensions);
 });
 
 async function unmouseable(flag) {
@@ -80,6 +89,7 @@ async function createWindow (setup) {
 			width: 320,
 			height: 180,
 			frame: false,
+			icon: nativeImage.createFromPath(path.join(__dirname, '/desktop-icon.ico')),
 			transparent: true,
 			webPreferences: {
 				//sandbox: true,
@@ -92,6 +102,7 @@ async function createWindow (setup) {
 		});
 	}
 
+	status.win.setIcon(nativeImage.createFromPath(path.join(__dirname, '/desktop-icon.ico')));
 	status.win.webContents.loadURL(url_opts.url);
 	
 	//Once the window is open, initiate ghost mode if it's set
@@ -110,7 +121,7 @@ async function createWindow (setup) {
 		shortcuts.unreg_media();
 		var url_opts = await urlhandler.parseYaml(url, pages);
 		if(url_opts.url != url) {
-			status.win.close();
+			//status.win.close();
 			createWindow({url: url});
 		}
 	});
@@ -124,7 +135,7 @@ async function createWindow (setup) {
 
 	status.win.setAlwaysOnTop(true, 'screen');
 
-	shortcuts.reg_base(status, setWinPos, shutdown);
+	shortcuts.reg_base(status, setWinPos, createWindow, shutdown);
 	if(url_opts.shortcuts) shortcuts.reg_media(status, url_opts.shortcuts);
 
 	if(url_opts.local) {
@@ -151,18 +162,28 @@ function setWinPos(pos, win, dimensions) {
 	switch(pos) {
 		case "ul":
 			win.setPosition( 10, 10 );
+			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
 			break;
 		case "ur":
 			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 10, 10 );
+			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
 			break;
 		case "ll":
 			win.setPosition( 10, dimensions.height - status.sizes[status.size_index][1] - 50);
+			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
 			break;
 		case "lr":
-			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 50, dimensions.height - status.sizes[status.size_index][1] - 50 );
+			win.setPosition( dimensions.width - status.sizes[status.size_index][0] - 10, dimensions.height - status.sizes[status.size_index][1] - 50 );
+			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
 			break;
 		case "cnt":
-			win.setSize(300, 800);
+			status.size_index = 1;
+			win.setSize(300, 550);
+			win.center();
+			break;
+		case "cntbig":
+			status.size_index = 1;
+			win.setSize(dimensions.width-200, dimensions.height-100);
 			win.center();
 			break;
 	}

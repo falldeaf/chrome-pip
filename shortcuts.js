@@ -5,25 +5,36 @@ const { globalShortcut } = require('electron')
 
 module.exports = {
 	//Register base shortcuts
-	reg_base: async function (status, setWinPos, shutdown, mousemode) {
+	reg_base: async function (status, setWinPos, createWindow, shutdown, mousemode) {
 
 		/////////////////////////////
 		//Base keys
 
 		//sizeup
 		globalShortcut.register('Super+Num8', () => {
-			//console.log('Sizeup');
-			if(status.size_index < 2) status.size_index++;
-			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
-			setWinPos(status.current_pos, status.win, status.dimensions);
+			if(status.win.isMinimized()) status.win.restore();
+			if(status.size_index < status.sizes.length) status.size_index++;
+			if(status.size_index == status.sizes.length) {
+				status.win.setFullScreen(true);
+			} else {
+				if(status.win.isFullScreen()) status.win.setFullScreen(false);
+				status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
+				setWinPos(status.current_pos, status.win, status.dimensions);
+			}
+			console.log('Sizeup: ' + status.size_index + "/" + status.sizes.length);
 		})
 
 		//sizedown
 		globalShortcut.register('Super+Num2', () => {
-			//console.log('Sizedown');
-			if(status.size_index > 0) status.size_index--;
-			status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
-			setWinPos(status.current_pos, status.win, status.dimensions);
+			if(status.size_index > -1) status.size_index--;
+			if(status.size_index == -1) {
+				status.win.minimize();
+			} else {
+				if(status.win.isMinimized()) status.win.restore();
+				status.win.setSize( status.sizes[status.size_index][0], status.sizes[status.size_index][1] );
+				setWinPos(status.current_pos, status.win, status.dimensions);
+			}
+			console.log('Sizedown: ' + status.size_index + "/" + status.sizes.length);
 		})
 
 		//move upper right
@@ -52,6 +63,13 @@ module.exports = {
 			//console.log('Lower Left');
 			status.current_pos = "ll";
 			setWinPos("ll", status.win, status.dimensions);
+		})
+
+		//return to index
+		globalShortcut.register('Super+Num0', () => {
+			//console.log('Lower Left');
+			status.current_pos = "cnt";
+			createWindow({});
 		})
 
 		//toggle ghost
