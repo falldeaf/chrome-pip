@@ -90,101 +90,34 @@ module.exports = {
 		//////////////////////
 		//MEDIA KEYS
 
-		//<< go back
-		globalShortcut.register('Control+Super+Num1', () => {
-			console.log('Send Play');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "back");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_back);
+		var short_keys = {
+			"comm_back": "Control+Super+Num1",
+			"comm_play": "Control+Super+Num2",
+			"comm_forward": "Control+Super+Num3",
+			"comm_voldown": "Control+Super+Num4",
+			"comm_mute": "Control+Super+Num5",
+			"comm_volup": "Control+Super+Num6",
+			"comm_prev": "Control+Super+Num7",
+			"comm_special": "Control+Super+Num8",
+			"comm_next": "Control+Super+Num9",
+		}
+
+		if(shortcuts.type == "ipc") {
+			for (const [key, value] of Object.entries(short_keys)) {
+				globalShortcut.register(value, () => {
+					status.win.webContents.send("action", key);
+				});
 			}
-
-		})
-
-		////play controls
-		//Toggle Play
-		globalShortcut.register('Control+Super+Num2', () => {
-			console.log('Send Play');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "play");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInputEvent({type: 'keyDown', keyCode: shortcuts.comm_play})
-				status.win.webContents.sendInputEvent({type: 'char', keyCode: shortcuts.comm_play});
+		} else if(shortcuts.type == "keyboard") {
+			for (const [key, value] of Object.entries(shortcuts)) {
+				console.log("Register " + short_keys[key] + " as " + value);
+				if(short_keys[key]) {
+					globalShortcut.register(short_keys[key], () => {
+						sendKeys(value, status);
+					});
+				}
 			}
-		})
-
-		//>> go forward
-		globalShortcut.register('Control+Super+Num3', () => {
-			console.log('Send Next');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "forward");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_forward);
-			}
-		})
-
-		/////volume
-		//volume down
-		globalShortcut.register('Control+Super+Num4', () => {
-			console.log('Send Play');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "voldown");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_voldown);
-			}
-		})
-
-		//Toggle Mute
-		globalShortcut.register('Control+Super+Num5', () => {
-			console.log('Send Pause');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "mute");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_mute);
-			}
-		})
-
-		//volume up
-		globalShortcut.register('Control+Super+Num6', () => {
-			console.log('Send Next');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "volup");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_volup);
-			}
-		})
-
-		/////tracks
-		//previous track
-		globalShortcut.register('Control+Super+Num7', () => {
-			console.log('Send Play');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "prev");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_prev);
-			}
-		})
-
-		//special
-		globalShortcut.register('Control+Super+Num8', () => {
-			console.log('Send Pause');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "special");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput(shortcuts.comm_special);
-			}
-		})
-
-		//next track
-		globalShortcut.register('Control+Super+Num9', () => {
-			console.log('Send Next');
-			if(shortcuts.type == "ipc") {
-				status.win.webContents.send("action", "next");
-			} else if(shortcuts.type == "keyboard") {
-				status.win.webContents.sendInput({char: shortcuts.comm_next});
-			}
-		})
-
+		}
 	},
 
 	unreg_media: function() {
@@ -203,4 +136,19 @@ module.exports = {
 		// Unregister all shortcuts.
 		globalShortcut.unregisterAll();
 	}
+}
+
+function sendKeys(accel, status) {
+	var mod = [];
+	if(accel.includes('Alt')) {
+		mod.push('alt');
+	} else if(accel.includes('Control')) {
+		mod.push('control');
+	} else if(accel.includes('Shift')) {
+		mod.push('shift');
+	}
+	
+	var key = accel.split('+').pop();
+	status.win.webContents.sendInputEvent({type: 'keyDown', modifiers: mod, keyCode: key})
+	status.win.webContents.sendInputEvent({type: 'char', modifiers: mod, keyCode: key});
 }

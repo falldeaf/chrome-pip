@@ -13,13 +13,13 @@
     function action(message){
       console.log(message);
       switch(message) {
-        case "play":
+        case "comm_play":
           yt_command("playVideo");
           break;
-        case "pause":
+        case "comm_pause":
           yt_command("pauseVideo");
           break;
-        case "next":
+        case "comm_next":
           yt_command("nextVideo");
           break;
       }
@@ -37,7 +37,7 @@
   default_url: "https://app.plex.tv/desktop"
   icon: "video_library"
   regex_ops:
-    test: "app.plex.tv/desktop"
+    test: "app.plex.tv"
   shortcuts: 
     type: "keyboard"
     comm_back: "Left"
@@ -55,3 +55,10 @@
   icon: "music_note"
   regex_ops:
     test: "play.google.com"
+  shortcuts:
+    type: "keyboard"
+    comm_play: "Space"
+    comm_voldown: "-"
+    comm_volup: "="
+    comm_prev: "Left"
+    comm_next: "Right"

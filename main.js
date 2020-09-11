@@ -69,7 +69,7 @@ async function createWindow (setup) {
 	if(setup.url) {
 		var url_opts = await urlhandler.parseYaml(setup.url, pages);
 	} else {
-		url_opts = {local: true, url: `file://${__dirname}/index.html`, extra_preload: false};
+		url_opts = {local: true, url: `file://${__dirname}/static/index.html`, extra_preload: false};
 	}
 	
 	//Set User Agent and All preloads (default preload plus url specific preloads)
@@ -100,43 +100,41 @@ async function createWindow (setup) {
 				plugins: true,
 			}
 		});
+
+		//REGISTER WINDOW CALLBACKS
+		//only register these the first time we create a window
+	
+		//Once the window is open, initiate ghost mode if it's set
+		status.win.webContents.once('dom-ready', () => {
+			status.win.webContents.send("apps", pages);
+			if(setup.ghost) {
+				status.ghost_mode = true;
+				status.win.webContents.send("ghost", String(status.ghost_mode));
+			}
+			if(setup.debug) status.win.webContents.openDevTools();
+			if(status.extra) status.win.webContents.executeJavaScript(status.extra);
+		});
+
+		//Intercept URL navigation to modify the url or add shortcuts and inject code
+		status.win.webContents.on('will-navigate', async (e, url) => { interceptUrls(e, url); });
+		status.win.webContents.on('did-navigate-in-page', async (e, url) => { interceptUrls(e, url); });
+
+		//Don't let new windows open (single page app!)
+		status.win.webContents.on('new-window', (e, url) => {
+			e.preventDefault();
+			status.win.webContents.loadURL(url);
+		});
+
+		//For now, always on top (maybe make this configurable later?)
+		status.win.setAlwaysOnTop(true, 'screen');
+
+		//Register the Base shortcuts for manipulating the window (Media shortcuts registered on per-page basis)
+		shortcuts.reg_base(status, setWinPos, createWindow, shutdown);
+
 	}
 
 	status.win.setIcon(nativeImage.createFromPath(path.join(__dirname, '/desktop-icon.ico')));
 	status.win.webContents.loadURL(url_opts.url);
-	
-	//Once the window is open, initiate ghost mode if it's set
-	status.win.webContents.once('dom-ready', () => {
-		status.win.webContents.send("apps", pages);
-		if(setup.ghost) {
-			status.ghost_mode = true;
-			status.win.webContents.send("ghost", String(status.ghost_mode));
-		}
-		if(setup.debug) status.win.webContents.openDevTools();
-		if(status.extra) status.win.webContents.executeJavaScript(status.extra);
-	});
-
-	status.win.webContents.on('did-navigate-in-page', async (e, url) => {
-		e.preventDefault();
-		shortcuts.unreg_media();
-		var url_opts = await urlhandler.parseYaml(url, pages);
-		if(url_opts.url != url) {
-			//status.win.close();
-			createWindow({url: url});
-		}
-	});
-
-	status.win.webContents.on('new-window', (e, url) => {
-		e.preventDefault();
-		console.log("No new windows");
-		status.win.webContents.loadURL(url);
-		//require('electron').shell.openExternal(url);
-	  });
-
-	status.win.setAlwaysOnTop(true, 'screen');
-
-	shortcuts.reg_base(status, setWinPos, createWindow, shutdown);
-	if(url_opts.shortcuts) shortcuts.reg_media(status, url_opts.shortcuts);
 
 	if(url_opts.local) {
 		setWinPos("cnt", status.win, "");
@@ -145,17 +143,28 @@ async function createWindow (setup) {
 	}
 }
 
+/*
 function preload(extra) {
-	//console.log(`extra preload ${extra}`);
 	var preloads = [path.join(__dirname, 'inject.js')]; //Default Preload
 	if(extra) {
 		file = path.join(__dirname, 'extra_preload.js');
 		fs.writeFile(file, extra, () => {});
 		preloads.push(file);
 	}
-	console.log(`Preloads ${preloads}`);
-	//session.defaultSession.setPreloads(preloads);
 	return preloads;
+}
+*/
+
+async function interceptUrls(e, url) {
+	shortcuts.unreg_media();
+	var url_opts = await urlhandler.parseYaml(url, pages);
+	if(url_opts.shortcuts) shortcuts.reg_media(status, url_opts.shortcuts);
+
+	if(url_opts.url != url) {
+		//status.win.close();
+		e.preventDefault();
+		createWindow({url: url});
+	}
 }
 
 function setWinPos(pos, win, dimensions) {
@@ -194,7 +203,7 @@ function shutdown() {
 }
 
 //app.whenReady().then(createWindow)
-app.commandLine.appendSwitch('no-verify-widevine-cdm');
+//app.commandLine.appendSwitch('no-verify-widevine-cdm');
 
 // remove so we can register each time as we run the app. 
 app.removeAsDefaultProtocolClient('webpip');
@@ -203,25 +212,29 @@ app.removeAsDefaultProtocolClient('webpip');
 //if(process.env.NODE_ENV === 'development' && process.platform === 'win32') {
 	// Set the path of electron.exe and your app.
 	// These two additional parameters are only available on windows.
-	app.setAsDefaultProtocolClient('webpip', process.execPath, [path.resolve(process.argv[1])]);        
+	//app.setAsDefaultProtocolClient('webpip', process.execPath, [path.resolve(process.argv[1])]);        
 //} else {
-	//app.setAsDefaultProtocolClient('webpip');
+	app.setAsDefaultProtocolClient('webpip');
 //}
 
-app.on('ready', () => {
+app.on('ready', async () => {
 	var mainScreen = screen.getPrimaryDisplay();
 	status.dimensions = mainScreen.size;
+	createWindow(await args.get());
 
+	/*
 	// Demonstrating with default session, but a custom session object can be used
 	//Dumb DRM shit from: https://github.com/castlabs/electron-releases
 	app.verifyWidevineCdm({
 	  session: session.defaultSession,
 	  disableUpdate: status.isOffline,
 	});
+	*/
   
 	// Do other early initialization...
 });
 
+/*
 app.on('widevine-ready', async (version, lastVersion) => {
 	if (null !== lastVersion) {
 		console.log('Widevine ' + version + ', upgraded from ' + lastVersion + ', is ready to be used!');
@@ -229,8 +242,10 @@ app.on('widevine-ready', async (version, lastVersion) => {
 		console.log('Widevine ' + version + ' is ready to be used!');
 	}
 
+	
 	createWindow(await args.get());
 });
+*/
 
 app.on('will-quit', () => {
 	shortcuts.unreg_all(status);
