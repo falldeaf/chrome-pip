@@ -1,0 +1,8 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.falldeaf.vertexvideo
+win:
+  target: nsis
+  icon: desktop_icon.ico
+electronVersion: 10.0.0-wvvmp-beta.25
