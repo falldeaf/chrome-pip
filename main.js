@@ -212,9 +212,9 @@ app.removeAsDefaultProtocolClient('webpip');
 //if(process.env.NODE_ENV === 'development' && process.platform === 'win32') {
 	// Set the path of electron.exe and your app.
 	// These two additional parameters are only available on windows.
-	//app.setAsDefaultProtocolClient('webpip', process.execPath, [path.resolve(process.argv[1])]);        
+	app.setAsDefaultProtocolClient('webpip', process.execPath, [path.resolve(process.argv[1])]);        
 //} else {
-	app.setAsDefaultProtocolClient('webpip');
+	//app.setAsDefaultProtocolClient('webpip');
 //}
 
 app.on('ready', async () => {
