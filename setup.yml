@@ -63,3 +63,14 @@
     comm_volup: "="
     comm_prev: "Left"
     comm_next: "Right"
+
+- name: Reddit Public Access
+  default_url: "https://www.reddit.com/rpan"
+  icon: "switch_video"
+  regex_ops:
+    test: "www.reddit.com/rpan"
+  shortcuts:
+    type: "keyboard"
+    comm_play: "space"
+    comm_prev: "Left"
+    comm_next: "Right"
